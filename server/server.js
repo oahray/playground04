@@ -17,10 +17,19 @@ app.post('/todos', (req, res) => {
     console.log(JSON.stringify(doc, undefined, 2));
     res.send(doc);
   }, (e) => {
-    console.log('Error saving Todo:', e.errors.text.message);
+    console.log('Error saving Todo: ', e.errors.text.message);
     res.status(400).send(e);
   })
 });
+
+app.get('/todos', (req, res) => {
+  Todo.find({}).then((todos) => {
+    res.send({todos});
+  }, (e) => {
+    console.log('Error getting Todos: ', e)
+    res.status(400).send(e);
+  })
+})
 
 app.listen(3000, () => {
   console.log('Express server started on port 3000');
