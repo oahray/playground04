@@ -28,8 +28,8 @@ app.get('/todos', (req, res) => {
   }, (e) => {
     console.log('Error getting Todos: ', e)
     res.status(400).send(e);
-  })
-})
+  });
+});
 
 app.listen(3000, () => {
   console.log('Express server started on port 3000');
