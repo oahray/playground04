@@ -25,6 +25,7 @@ app.post('/todos', (req, res) => {
 
 app.get('/todos', (req, res) => {
   Todo.find({}).then((todos) => {
+    console.log(todos);
     res.send({todos});
   }, (e) => {
     console.log('Error getting Todos: ', e)
