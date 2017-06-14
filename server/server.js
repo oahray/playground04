@@ -22,7 +22,6 @@ app.post('/todos', (req, res) => {
   });
 
   todo.save().then((doc) => {
-    console.log(JSON.stringify(doc, undefined, 2));
     res.send(doc);
   }, (e) => {
     console.log('Error saving Todo: ', e.errors.text.message);
