@@ -207,7 +207,7 @@ describe('GET /users/me', () => {
 
 describe('POST /users', () => {
   it('should create a user', (done) => {
-    var email = "ray123@example.com";
+    var email = "example1@example.com";
     var password = "password1";
     request(app)
       .post('/users')
@@ -226,8 +226,8 @@ describe('POST /users', () => {
         User.findOne({email}).then((user) => {
           expect(user.email).toBe(email);
           expect(user.password).toNotBe(password);
-        })
-        done();
+          done();
+        }).catch((e) => done(e));
       });
   });
 
@@ -249,5 +249,61 @@ describe('POST /users', () => {
       .send({email, password})
       .expect(400)
       .end(done);
+  });
+});
+
+describe('POST /users/login', () => {
+  it("should login user and return auth token", (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: users[1].password
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toExist().toBeA('string');
+        expect(res.body._id).toExist();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        User.findById(users[1]._id).then((user) => {
+          expect(user.email).toBe(res.body.email);
+          expect(user.tokens[0]).toInclude({
+            access: 'auth',
+            token: res.headers['x-auth']
+          });
+          done();
+        })
+        .catch((e) => done(e));
+      });
+  });
+
+  it('should reject invalid login', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: users[1].password + 'a'
+      })
+      .expect(400)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toNotExist();
+        expect(res.body._id).toNotExist();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        User.findById(users[1]._id).then((user) => {
+          expect(user.tokens.length).toBe(0);
+          done();
+        })
+        .catch((e) => done(e));
+      });
   });
 });
